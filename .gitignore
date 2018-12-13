@@ -6,7 +6,9 @@
 .pnp.js
 src/App.test.js
 src/serviceWorker.js
-src/package-lock.json
+src/logo.svg
+src/App.css
+package-lock.json
 
 # testing
 /coverage
