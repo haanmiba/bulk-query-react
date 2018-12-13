@@ -4,9 +4,9 @@
 /node_modules
 /.pnp
 .pnp.js
-App.test.js
-serviceWorker.js
-package-lock.json
+src/App.test.js
+src/serviceWorker.js
+src/package-lock.json
 
 # testing
 /coverage
