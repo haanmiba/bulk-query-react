@@ -3,7 +3,6 @@ import "./App.css";
 import NavBar from "./components/navbar";
 import Queries from "./components/queries";
 import { Button } from "react-bootstrap";
-import DropdownPanel from "./components/dropdown-panel";
 
 class App extends Component {
   state = {
@@ -81,7 +80,7 @@ class App extends Component {
     const index = queries.indexOf(query);
     queries[index] = { ...query };
     queries[index].value = value;
-    queries[index].checked = value.length > 0;
+    queries[index].checked = value.trim().length > 0;
     this.setState({ queries });
   };
 
@@ -138,6 +137,93 @@ class App extends Component {
 
   handleDeleteAll = () => {
     const queries = [{ id: 0, value: "", checked: false }];
+    this.setState({ queries });
+  };
+
+  handleInvertCheckboxes = () => {
+    const queries = this.state.queries.map(query => {
+      query.checked = !query.checked;
+      return query;
+    });
+    this.setState({ queries });
+  };
+
+  handleSortQueries = () => {
+    const queries = [...this.state.queries];
+    queries.sort((a, b) =>
+      a.value > b.value ? 1 : b.value > a.value ? -1 : 0
+    );
+    this.setState({ queries });
+  };
+
+  handleReverseQueries = () => {
+    const queries = [...this.state.queries];
+    queries.reverse();
+    this.setState({ queries });
+  };
+
+  handleSearchChecked = () => {
+    this.state.queries.forEach(query => {
+      if (query.checked) {
+        this.handleSearchQuery(query);
+      }
+    });
+  };
+
+  handleSearchUnchecked = () => {
+    this.state.queries.forEach(query => {
+      if (!query.checked) {
+        this.handleSearchQuery(query);
+      }
+    });
+  };
+
+  handleClearChecked = () => {
+    const queries = [...this.state.queries];
+    queries.forEach(query => {
+      if (query.checked) {
+        query.value = "";
+        return query;
+      }
+    });
+    this.setState({ queries });
+  };
+
+  handleClearUnchecked = () => {
+    const queries = [...this.state.queries];
+    queries.forEach(query => {
+      if (!query.checked) {
+        query.value = "";
+        return query;
+      }
+    });
+    this.setState({ queries });
+  };
+
+  handleDeleteChecked = () => {
+    const queries = this.state.queries.filter(query => !query.checked);
+    if (queries.length === 0) {
+      this.handleDeleteAll();
+      return;
+    }
+    this.setState({ queries });
+  };
+
+  handleDeleteUnchecked = () => {
+    const queries = this.state.queries.filter(query => query.checked);
+    if (queries.length === 0) {
+      this.handleDeleteAll();
+      return;
+    }
+    this.setState({ queries });
+  };
+
+  handleDeleteEmptyCells = () => {
+    const queries = this.state.queries.filter(query => query.value.length > 0);
+    if (queries.length === 0) {
+      this.handleDeleteAll();
+      return;
+    }
     this.setState({ queries });
   };
 
@@ -201,37 +287,71 @@ class App extends Component {
           <div>
             <div className="light-gray-panel">
               <Button className="m-2">Add URL</Button>
-              <Button className="m-2">Invert Checked</Button>
-              <Button className="m-2">Sort</Button>
-              <Button className="m-2">Reverse</Button>
+              <Button className="m-2" onClick={this.handleInvertCheckboxes}>
+                Invert Checked
+              </Button>
+              <Button className="m-2" onClick={this.handleSortQueries}>
+                Sort
+              </Button>
+              <Button className="m-2" onClick={this.handleReverseQueries}>
+                Reverse
+              </Button>
             </div>
             <div className="light-green-panel">
               <Button bsStyle="success" className="m-2">
                 Format Search
               </Button>
-              <Button bsStyle="success" className="m-2">
+              <Button
+                bsStyle="success"
+                className="m-2"
+                onClick={this.handleSearchChecked}
+              >
                 Search Checked
               </Button>
-              <Button bsStyle="success" className="m-2">
+              <Button
+                bsStyle="success"
+                className="m-2"
+                onClick={this.handleSearchUnchecked}
+              >
                 Search Unchecked
               </Button>
             </div>
             <div className="light-yellow-panel">
-              <Button bsStyle="warning" className="m-2">
+              <Button
+                bsStyle="warning"
+                className="m-2"
+                onClick={this.handleClearChecked}
+              >
                 Clear Checked
               </Button>
-              <Button bsStyle="warning" className="m-2">
+              <Button
+                bsStyle="warning"
+                className="m-2"
+                onClick={this.handleClearUnchecked}
+              >
                 Clear Unchecked
               </Button>
             </div>
             <div className="light-red-panel">
-              <Button bsStyle="danger" className="m-2">
+              <Button
+                bsStyle="danger"
+                className="m-2"
+                onClick={this.handleDeleteChecked}
+              >
                 Delete Checked
               </Button>
-              <Button bsStyle="danger" className="m-2">
+              <Button
+                bsStyle="danger"
+                className="m-2"
+                onClick={this.handleDeleteUnchecked}
+              >
                 Delete Unchecked
               </Button>
-              <Button bsStyle="danger" className="m-2">
+              <Button
+                bsStyle="danger"
+                className="m-2"
+                onClick={this.handleDeleteEmptyCells}
+              >
                 Delete Empty Cells
               </Button>
             </div>
