@@ -5,9 +5,11 @@ class NavBar extends Component {
   state = {
     dropdownDisplayed: false
   };
+
   handleClick = () => {
     this.setState({ dropdownDisplayed: !this.state.dropdownDisplayed });
   };
+
   render() {
     const {
       numberOfCheckedQueries,

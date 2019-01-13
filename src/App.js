@@ -3,49 +3,15 @@ import "./App.css";
 import NavBar from "./components/navbar";
 import Queries from "./components/queries";
 import { Button } from "react-bootstrap";
+import initialState from "./initial-state";
 
 class App extends Component {
-  state = {
-    currentURL: {
-      displayName: "Google",
-      href: "https://www.google.com/search",
-      searchQueryKey: "q"
-    },
-    queries: [{ id: 0, value: "", checked: false }],
-    urls: [
-      {
-        displayName: "Google",
-        href: "https://www.google.com/search",
-        searchQueryKey: "q"
-      },
-      {
-        displayName: "YouTube",
-        href: "https://www.youtube.com/results",
-        searchQueryKey: "search_query"
-      },
-      {
-        displayName: "Wikipedia",
-        href: "https://en.wikipedia.org/w/index.php",
-        searchQueryKey: "search"
-      },
-      {
-        displayName: "Reddit",
-        href: "https://www.reddit.com/search",
-        searchQueryKey: "q"
-      },
-      {
-        displayName: "Amazon",
-        href: "https://www.amazon.com/s/index.php",
-        searchQueryKey: "field-keywords"
-      }
-    ]
-  };
-
   MAXIMUM_NUMBER_OF_QUERIES = 100;
 
   constructor() {
     super();
     if (localStorage.getItem("state") === null) {
+      this.state = initialState;
       localStorage.setItem("state", JSON.stringify(this.state));
     } else {
       this.state = JSON.parse(localStorage.getItem("state"));
@@ -61,6 +27,11 @@ class App extends Component {
       (max, query) => (query.id > max ? query.id : max),
       queries[0].id
     );
+  };
+
+  handleChangeListName = e => {
+    const { value } = e.target;
+    this.setState({ listName: value });
   };
 
   handleChangeURL = currentURL => {
@@ -227,6 +198,42 @@ class App extends Component {
     this.setState({ queries });
   };
 
+  handleAddURLSubmit = e => {
+    e.preventDefault();
+    const { addUrlForm, urls } = this.state;
+    if (
+      this.state.urls
+        .map(url => url.displayName)
+        .includes(addUrlForm.displayName)
+    ) {
+      alert(`'${addUrlForm.displayName}' is already stored.`);
+    } else {
+      urls.push({
+        displayName: addUrlForm.displayName,
+        href: addUrlForm.href,
+        searchQueryKey: addUrlForm.searchQueryKey
+      });
+      this.setState({ urls });
+      this.setState({
+        addUrlForm: { displayName: "", href: "", searchQueryKey: "" }
+      });
+    }
+  };
+
+  togglePanelOnClick = e => {
+    const { name } = e.target;
+    var { openPanels } = this.state;
+    openPanels[name] = !openPanels[name];
+    this.setState({ openPanels });
+  };
+
+  handleAddURLFormFieldChange = e => {
+    const { name, value } = e.target;
+    var { addUrlForm } = this.state;
+    addUrlForm[name] = value;
+    this.setState({ addUrlForm });
+  };
+
   render() {
     return (
       <React.Fragment>
@@ -239,6 +246,7 @@ class App extends Component {
           onChangeURL={this.handleChangeURL}
         />
         <main className="container">
+          <input type="text" onChange={this.handleChangeListName} />
           <Queries
             onCheckboxChange={this.handleCheckboxChange}
             onTextInputChange={this.handleTextInputChange}
@@ -286,7 +294,13 @@ class App extends Component {
           </div>
           <div>
             <div className="light-gray-panel">
-              <Button className="m-2">Add URL</Button>
+              <Button
+                name="addUrl"
+                className="m-2"
+                onClick={this.togglePanelOnClick}
+              >
+                Add URL
+              </Button>
               <Button className="m-2" onClick={this.handleInvertCheckboxes}>
                 Invert Checked
               </Button>
@@ -296,6 +310,58 @@ class App extends Component {
               <Button className="m-2" onClick={this.handleReverseQueries}>
                 Reverse
               </Button>
+              <div
+                id="add-url-panel"
+                ref="add-url-panel"
+                style={{
+                  display: this.state.openPanels.addUrl ? "block" : "none"
+                }}
+              >
+                <form onSubmit={this.handleAddURLSubmit}>
+                  <div className="ml-2">
+                    <label htmlFor="add-url-name-input">Name: </label>
+                    <input
+                      name="displayName"
+                      id="add-url-name-input"
+                      type="text"
+                      className="ml-2"
+                      value={this.state.addUrlForm.displayName}
+                      onChange={this.handleAddURLFormFieldChange}
+                    />
+                  </div>
+                  <div className="ml-2">
+                    <label htmlFor="add-url-hyperlink-input">Hyperlink: </label>
+                    <input
+                      name="href"
+                      id="add-url-hyperlink-input"
+                      type="text"
+                      className="ml-2"
+                      value={this.state.addUrlForm.href}
+                      onChange={this.handleAddURLFormFieldChange}
+                    />
+                  </div>
+                  <div className="ml-2">
+                    <label htmlFor="add-url-search-query-key-input">
+                      Search Query Key:
+                    </label>
+                    <input
+                      name="searchQueryKey"
+                      id="add-url-search-query-key-input"
+                      type="text"
+                      className="ml-2"
+                      value={this.state.addUrlForm.searchQueryKey}
+                      onChange={this.handleAddURLFormFieldChange}
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="submit"
+                      value="Submit"
+                      className="m-2 btn btn-primary"
+                    />
+                  </div>
+                </form>
+              </div>
             </div>
             <div className="light-green-panel">
               <Button bsStyle="success" className="m-2">
