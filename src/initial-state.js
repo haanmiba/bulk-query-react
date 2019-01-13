@@ -6,6 +6,7 @@ const initialState = {
     searchQueryKey: "q"
   },
   queries: [{ id: 0, value: "", checked: false }],
+  savedLists: [],
   addUrlForm: {
     displayName: "",
     href: "",
@@ -38,7 +39,13 @@ const initialState = {
       searchQueryKey: "field-keywords"
     }
   ],
-  openPanels: { addUrl: false, formatSearch: false, formatSearchOptions: false }
+  openPanels: {
+    advancedPanel: false,
+    addUrl: false,
+    formatSearch: false,
+    formatSearchOptions: false,
+    loadList: false
+  }
 };
 
 export default initialState;

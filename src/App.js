@@ -91,9 +91,7 @@ class App extends Component {
 
   handleSearchAll = () => {
     this.state.queries.forEach(query => {
-      if (query.value.length > 0) {
-        this.handleSearchQuery(query);
-      }
+      this.handleSearchQuery(query);
     });
   };
 
@@ -238,8 +236,65 @@ class App extends Component {
     const { formatSearchText } = this;
     formatSearchText.value =
       formatSearchText.value.substring(0, startPos) +
-      `$${this.state.listName}$` +
+      "<>" +
       formatSearchText.value.substring(endPos, formatSearchText.value.length);
+  };
+
+  handleFormatSearchChecked = () => {
+    this.state.queries.forEach(query => {
+      if (query.checked) {
+        var formattedQuery = { ...query };
+        formattedQuery.value = this.formatSearchText.value
+          .split("<>")
+          .join(query.value);
+        this.handleSearchQuery(formattedQuery);
+      }
+    });
+  };
+
+  handleFormatSearchUnchecked = () => {
+    this.state.queries.forEach(query => {
+      if (!query.checked) {
+        var formattedQuery = { ...query };
+        formattedQuery.value = this.formatSearchText.value
+          .split("<>")
+          .join(query.value);
+        this.handleSearchQuery(formattedQuery);
+      }
+    });
+  };
+
+  handleFormatSearchAll = () => {
+    this.state.queries.forEach(query => {
+      var formattedQuery = { ...query };
+      formattedQuery.value = this.formatSearchText.value
+        .split("<>")
+        .join(query.value);
+      this.handleSearchQuery(formattedQuery);
+    });
+  };
+
+  handleSaveList = () => {
+    const { savedLists, listName, queries } = this.state;
+    const index = savedLists
+      .map(savedList => savedList.listName)
+      .indexOf(listName);
+    if (index !== -1) {
+      const savedList = savedLists[index];
+      savedList.queries = queries;
+    } else {
+      savedLists.push({ listName: listName, queries: queries });
+    }
+    this.setState({ savedLists });
+  };
+
+  handleLoadList = name => {
+    const { savedLists } = this.state;
+    const index = savedLists.map(savedList => savedList.listName).indexOf(name);
+    const savedList = savedLists[index];
+    const listName = savedList.listName;
+    const queries = savedList.queries;
+    this.setState({ listName, queries });
   };
 
   render() {
@@ -309,7 +364,20 @@ class App extends Component {
               Delete All
             </Button>
           </div>
-          <div>
+          <a
+            name="advancedPanel"
+            href="#!"
+            onClick={this.togglePanelOnClick}
+            className="ml-2 dropdown-toggle"
+          >
+            Advanced
+          </a>
+          <div
+            id="advanced-panel"
+            style={{
+              display: this.state.openPanels.advancedPanel ? "block" : "none"
+            }}
+          >
             <div className="light-gray-panel">
               <Button
                 name="addUrl"
@@ -445,13 +513,27 @@ class App extends Component {
                       : "none"
                   }}
                 >
-                  <a href="#!" id="list-format-search-checked">
+                  <a
+                    href="#!"
+                    id="list-format-search-checked"
+                    onClick={this.handleFormatSearchChecked}
+                  >
                     Search Checked
                   </a>
-                  <a href="#!" id="list-format-search-unchecked">
+                  <a
+                    href="#!"
+                    id="list-format-search-unchecked"
+                    onClick={this.handleFormatSearchUnchecked}
+                  >
                     Search Unchecked
                   </a>
-                  <a href="#!" id="list-format-search-all">
+                  <a
+                    href="#!"
+                    id="list-format-search-all"
+                    onClick={
+                      this.MAXIMUM_NUMBER_OF_QUERIES.handleFormatSearchAll
+                    }
+                  >
                     Search All
                   </a>
                 </div>
@@ -497,10 +579,19 @@ class App extends Component {
               </Button>
             </div>
             <div className="light-cyan-panel">
-              <Button bsStyle="info" className="m-2">
+              <Button
+                bsStyle="info"
+                className="m-2"
+                onClick={this.handleSaveList}
+              >
                 Save List
               </Button>
-              <Button bsStyle="info" className="m-2">
+              <Button
+                name="loadList"
+                bsStyle="info"
+                className="m-2 dropdown-toggle"
+                onClick={this.togglePanelOnClick}
+              >
                 Load List
               </Button>
               <Button bsStyle="info" className="m-2">
@@ -509,6 +600,21 @@ class App extends Component {
               <Button bsStyle="info" className="m-2">
                 Export CSV
               </Button>
+              <div
+                className="light-cyan-dropdown-panel ml-2"
+                style={{
+                  display: this.state.openPanels.loadList ? "block" : "none"
+                }}
+              >
+                {this.state.savedLists.map(savedList => (
+                  <a
+                    href="#!"
+                    onClick={() => this.handleLoadList(savedList.listName)}
+                  >
+                    {savedList.listName}
+                  </a>
+                ))}
+              </div>
             </div>
           </div>
         </main>

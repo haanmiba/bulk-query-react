@@ -37,3 +37,23 @@
 .green-dropdown-panel a:hover {
   background-color: #257528;
 }
+
+.light-cyan-dropdown-panel {
+  position: relative;
+  background-color: #3eb2cf;
+  min-width: 160px;
+  max-width: 300px;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+.light-cyan-dropdown-panel a {
+  display: block;
+  color: white;
+  padding: 12px 16px;
+  text-decoration: none;
+}
+
+.light-cyan-dropdown-panel a:hover {
+  background-color: #206b96;
+}
