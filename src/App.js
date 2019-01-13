@@ -29,7 +29,7 @@ class App extends Component {
     );
   };
 
-  handleChangeListName = e => {
+  handleListNameChange = e => {
     const { value } = e.target;
     this.setState({ listName: value });
   };
@@ -234,6 +234,14 @@ class App extends Component {
     this.setState({ addUrlForm });
   };
 
+  handleFormatSearch = (startPos, endPos) => {
+    const { formatSearchText } = this;
+    formatSearchText.value =
+      formatSearchText.value.substring(0, startPos) +
+      `$${this.state.listName}$` +
+      formatSearchText.value.substring(endPos, formatSearchText.value.length);
+  };
+
   render() {
     return (
       <React.Fragment>
@@ -246,7 +254,16 @@ class App extends Component {
           onChangeURL={this.handleChangeURL}
         />
         <main className="container">
-          <input type="text" onChange={this.handleChangeListName} />
+          <div className="text-center">
+            <input
+              id="list-name-field"
+              type="text"
+              value={this.state.listName}
+              onChange={this.handleListNameChange}
+              className="mt-2"
+              placeholder="List Name"
+            />
+          </div>
           <Queries
             onCheckboxChange={this.handleCheckboxChange}
             onTextInputChange={this.handleTextInputChange}
@@ -296,7 +313,7 @@ class App extends Component {
             <div className="light-gray-panel">
               <Button
                 name="addUrl"
-                className="m-2"
+                className="m-2 dropdown-toggle"
                 onClick={this.togglePanelOnClick}
               >
                 Add URL
@@ -312,7 +329,6 @@ class App extends Component {
               </Button>
               <div
                 id="add-url-panel"
-                ref="add-url-panel"
                 style={{
                   display: this.state.openPanels.addUrl ? "block" : "none"
                 }}
@@ -364,7 +380,12 @@ class App extends Component {
               </div>
             </div>
             <div className="light-green-panel">
-              <Button bsStyle="success" className="m-2">
+              <Button
+                name="formatSearch"
+                bsStyle="success"
+                className="m-2 dropdown-toggle"
+                onClick={this.togglePanelOnClick}
+              >
                 Format Search
               </Button>
               <Button
@@ -381,6 +402,60 @@ class App extends Component {
               >
                 Search Unchecked
               </Button>
+              <div
+                id="format-search-panel"
+                style={{
+                  display: this.state.openPanels.formatSearch ? "block" : "none"
+                }}
+              >
+                <Button
+                  bsStyle="info"
+                  className="m-2"
+                  onClick={() =>
+                    this.handleFormatSearch(
+                      this.formatSearchText.selectionStart,
+                      this.formatSearchText.selectionEnd
+                    )
+                  }
+                >
+                  {this.state.listName}
+                </Button>
+                <div className="ml-2">
+                  <textarea
+                    ref={input => {
+                      this.formatSearchText = input;
+                    }}
+                    id="format-search-textarea"
+                  />
+                </div>
+                <Button
+                  name="formatSearchOptions"
+                  bsStyle="success"
+                  className="m-2 dropdown-toggle"
+                  onClick={this.togglePanelOnClick}
+                >
+                  Search
+                </Button>
+                <div
+                  id="format-search-dropdown-panel"
+                  className="green-dropdown-panel ml-2"
+                  style={{
+                    display: this.state.openPanels.formatSearchOptions
+                      ? "block"
+                      : "none"
+                  }}
+                >
+                  <a href="#!" id="list-format-search-checked">
+                    Search Checked
+                  </a>
+                  <a href="#!" id="list-format-search-unchecked">
+                    Search Unchecked
+                  </a>
+                  <a href="#!" id="list-format-search-all">
+                    Search All
+                  </a>
+                </div>
+              </div>
             </div>
             <div className="light-yellow-panel">
               <Button

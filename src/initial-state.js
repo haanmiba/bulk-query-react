@@ -38,7 +38,7 @@ const initialState = {
       searchQueryKey: "field-keywords"
     }
   ],
-  openPanels: { addUrl: false, formatSearch: false }
+  openPanels: { addUrl: false, formatSearch: false, formatSearchOptions: false }
 };
 
 export default initialState;
