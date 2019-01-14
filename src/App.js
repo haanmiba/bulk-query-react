@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import "./App.css";
 import NavBar from "./components/navbar";
 import Queries from "./components/queries";
 import { Button } from "react-bootstrap";
@@ -381,18 +380,31 @@ class App extends Component {
             <div className="light-gray-panel">
               <Button
                 name="addUrl"
+                bsStyle="light"
                 className="m-2 dropdown-toggle"
                 onClick={this.togglePanelOnClick}
               >
                 Add URL
               </Button>
-              <Button className="m-2" onClick={this.handleInvertCheckboxes}>
+              <Button
+                className="m-2"
+                bsStyle="light"
+                onClick={this.handleInvertCheckboxes}
+              >
                 Invert Checked
               </Button>
-              <Button className="m-2" onClick={this.handleSortQueries}>
+              <Button
+                className="m-2"
+                bsStyle="light"
+                onClick={this.handleSortQueries}
+              >
                 Sort
               </Button>
-              <Button className="m-2" onClick={this.handleReverseQueries}>
+              <Button
+                className="m-2"
+                bsStyle="light"
+                onClick={this.handleReverseQueries}
+              >
                 Reverse
               </Button>
               <div
