@@ -99,7 +99,8 @@ class App extends Component {
   };
 
   handleSearchAll = () => {
-    this.state.queries.forEach(query => {
+    const { queries } = this.state;
+    queries.forEach(query => {
       this.handleSearchQuery(query);
     });
   };
@@ -140,38 +141,21 @@ class App extends Component {
     this.setState({ queries });
   };
 
-  handleSearchChecked = () => {
-    this.state.queries.forEach(query => {
-      if (query.checked) {
+  handleSearchCheckedOrUnchecked = value => {
+    const { queries } = this.state;
+    queries.forEach(query => {
+      if (query.checked === value) {
         this.handleSearchQuery(query);
       }
     });
   };
 
-  handleSearchUnchecked = () => {
-    this.state.queries.forEach(query => {
-      if (!query.checked) {
-        this.handleSearchQuery(query);
-      }
-    });
-  };
-
-  handleClearChecked = () => {
+  handleClearCheckedOrUnchecked = value => {
     const queries = [...this.state.queries];
     queries.forEach(query => {
-      if (query.checked) {
+      if (query.checked === value) {
         query.value = "";
-        return query;
-      }
-    });
-    this.setState({ queries });
-  };
-
-  handleClearUnchecked = () => {
-    const queries = [...this.state.queries];
-    queries.forEach(query => {
-      if (!query.checked) {
-        query.value = "";
+        query.checked = false;
         return query;
       }
     });
@@ -208,11 +192,7 @@ class App extends Component {
   handleAddURLSubmit = e => {
     e.preventDefault();
     const { addUrlForm, urls } = this.state;
-    if (
-      this.state.urls
-        .map(url => url.displayName)
-        .includes(addUrlForm.displayName)
-    ) {
+    if (urls.map(url => url.displayName).includes(addUrlForm.displayName)) {
       alert(`'${addUrlForm.displayName}' is already stored.`);
     } else {
       urls.push({
@@ -241,7 +221,7 @@ class App extends Component {
     this.setState({ addUrlForm });
   };
 
-  handleFormatSearch = (startPos, endPos) => {
+  handleFormatSearchInsertText = (startPos, endPos) => {
     const { formatSearchText } = this;
     formatSearchText.value =
       formatSearchText.value.substring(0, startPos) +
@@ -249,37 +229,16 @@ class App extends Component {
       formatSearchText.value.substring(endPos, formatSearchText.value.length);
   };
 
-  handleFormatSearchChecked = () => {
-    this.state.queries.forEach(query => {
-      if (query.checked) {
+  handleFormatSearch = (value, allQueries = false) => {
+    const { queries } = this.state;
+    queries.forEach(query => {
+      if (query.checked === value || allQueries) {
         var formattedQuery = { ...query };
         formattedQuery.value = this.formatSearchText.value
           .split("<>")
           .join(query.value);
         this.handleSearchQuery(formattedQuery);
       }
-    });
-  };
-
-  handleFormatSearchUnchecked = () => {
-    this.state.queries.forEach(query => {
-      if (!query.checked) {
-        var formattedQuery = { ...query };
-        formattedQuery.value = this.formatSearchText.value
-          .split("<>")
-          .join(query.value);
-        this.handleSearchQuery(formattedQuery);
-      }
-    });
-  };
-
-  handleFormatSearchAll = () => {
-    this.state.queries.forEach(query => {
-      var formattedQuery = { ...query };
-      formattedQuery.value = this.formatSearchText.value
-        .split("<>")
-        .join(query.value);
-      this.handleSearchQuery(formattedQuery);
     });
   };
 
@@ -345,14 +304,22 @@ class App extends Component {
   };
 
   render() {
+    const {
+      queries,
+      currentURL,
+      urls,
+      listName,
+      openPanels,
+      addUrlForm,
+      fileName,
+      savedLists
+    } = this.state;
     return (
       <React.Fragment>
         <NavBar
-          numberOfCheckedQueries={
-            this.state.queries.filter(query => query.checked).length
-          }
-          currentURL={this.state.currentURL}
-          urlsDisplayed={this.state.urls}
+          numberOfCheckedQueries={queries.filter(query => query.checked).length}
+          currentURL={currentURL}
+          urlsDisplayed={urls}
           onChangeURL={this.handleChangeURL}
         />
         <main className="container">
@@ -360,7 +327,7 @@ class App extends Component {
             <input
               id="list-name-field"
               type="text"
-              value={this.state.listName}
+              value={listName}
               onChange={this.handleListNameChange}
               className="mt-2"
               placeholder="List Name"
@@ -372,13 +339,13 @@ class App extends Component {
             onSearchQueryClick={this.handleSearchQuery}
             onClearQueryClick={this.handleClearQuery}
             onDeleteQueryClick={this.handleDeleteQuery}
-            queries={this.state.queries}
+            queries={queries}
           />
           <Button
             bsStyle="primary"
             className="m-2"
             onClick={this.handleAddQuery}
-            disabled={this.state.queries === this.MAXIMUM_NUMBER_OF_QUERIES}
+            disabled={queries === this.MAXIMUM_NUMBER_OF_QUERIES}
           >
             Add Query
           </Button>
@@ -388,9 +355,8 @@ class App extends Component {
               className="m-2"
               onClick={this.handleSearchAll}
               disabled={
-                this.state.queries.filter(
-                  query => query.value.trim().length > 0
-                ).length === 0
+                queries.filter(query => query.value.trim().length > 0)
+                  .length === 0
               }
             >
               Search All
@@ -406,7 +372,7 @@ class App extends Component {
               bsStyle="danger"
               className="m-2"
               onClick={this.handleDeleteAll}
-              disabled={this.state.queries.length === 1}
+              disabled={queries.length === 1}
             >
               Delete All
             </Button>
@@ -422,7 +388,7 @@ class App extends Component {
           <div
             id="advanced-panel"
             style={{
-              display: this.state.openPanels.advancedPanel ? "block" : "none"
+              display: openPanels.advancedPanel ? "block" : "none"
             }}
           >
             <div className="light-gray-panel">
@@ -458,7 +424,7 @@ class App extends Component {
               <div
                 id="add-url-panel"
                 style={{
-                  display: this.state.openPanels.addUrl ? "block" : "none"
+                  display: openPanels.addUrl ? "block" : "none"
                 }}
               >
                 <form onSubmit={this.handleAddURLSubmit}>
@@ -469,7 +435,7 @@ class App extends Component {
                       id="add-url-name-input"
                       type="text"
                       className="ml-2"
-                      value={this.state.addUrlForm.displayName}
+                      value={addUrlForm.displayName}
                       onChange={this.handleAddURLFormFieldChange}
                     />
                   </div>
@@ -480,7 +446,7 @@ class App extends Component {
                       id="add-url-hyperlink-input"
                       type="text"
                       className="ml-2"
-                      value={this.state.addUrlForm.href}
+                      value={addUrlForm.href}
                       onChange={this.handleAddURLFormFieldChange}
                     />
                   </div>
@@ -493,7 +459,7 @@ class App extends Component {
                       id="add-url-search-query-key-input"
                       type="text"
                       className="ml-2"
-                      value={this.state.addUrlForm.searchQueryKey}
+                      value={addUrlForm.searchQueryKey}
                       onChange={this.handleAddURLFormFieldChange}
                     />
                   </div>
@@ -519,34 +485,34 @@ class App extends Component {
               <Button
                 bsStyle="success"
                 className="m-2"
-                onClick={this.handleSearchChecked}
+                onClick={() => this.handleSearchCheckedOrUnchecked(true)}
               >
                 Search Checked
               </Button>
               <Button
                 bsStyle="success"
                 className="m-2"
-                onClick={this.handleSearchUnchecked}
+                onClick={() => this.handleSearchCheckedOrUnchecked(false)}
               >
                 Search Unchecked
               </Button>
               <div
                 id="format-search-panel"
                 style={{
-                  display: this.state.openPanels.formatSearch ? "block" : "none"
+                  display: openPanels.formatSearch ? "block" : "none"
                 }}
               >
                 <Button
                   bsStyle="info"
                   className="m-2"
                   onClick={() =>
-                    this.handleFormatSearch(
+                    this.handleFormatSearchInsertText(
                       this.formatSearchText.selectionStart,
                       this.formatSearchText.selectionEnd
                     )
                   }
                 >
-                  {this.state.listName}
+                  {listName}
                 </Button>
                 <div className="ml-2">
                   <textarea
@@ -568,31 +534,27 @@ class App extends Component {
                   id="format-search-dropdown-panel"
                   className="green-dropdown-panel ml-2"
                   style={{
-                    display: this.state.openPanels.formatSearchOptions
-                      ? "block"
-                      : "none"
+                    display: openPanels.formatSearchOptions ? "block" : "none"
                   }}
                 >
                   <a
                     href="#!"
                     id="list-format-search-checked"
-                    onClick={this.handleFormatSearchChecked}
+                    onClick={() => this.handleFormatSearch(true)}
                   >
                     Search Checked
                   </a>
                   <a
                     href="#!"
                     id="list-format-search-unchecked"
-                    onClick={this.handleFormatSearchUnchecked}
+                    onClick={() => this.handleFormatSearch(false)}
                   >
                     Search Unchecked
                   </a>
                   <a
                     href="#!"
                     id="list-format-search-all"
-                    onClick={
-                      this.MAXIMUM_NUMBER_OF_QUERIES.handleFormatSearchAll
-                    }
+                    onClick={() => this.handleFormatSearchAll(true, true)}
                   >
                     Search All
                   </a>
@@ -603,14 +565,14 @@ class App extends Component {
               <Button
                 bsStyle="warning"
                 className="m-2"
-                onClick={this.handleClearChecked}
+                onClick={() => this.handleClearCheckedOrUnchecked(true)}
               >
                 Clear Checked
               </Button>
               <Button
                 bsStyle="warning"
                 className="m-2"
-                onClick={this.handleClearUnchecked}
+                onClick={() => this.handleClearCheckedOrUnchecked(false)}
               >
                 Clear Unchecked
               </Button>
@@ -665,21 +627,21 @@ class App extends Component {
 
               <CSVLink
                 className="btn btn-info m-2"
-                data={this.state.queries.map(query => {
+                data={queries.map(query => {
                   return [query.value];
                 })}
-                headers={[this.state.listName]}
-                filename={this.state.fileName}
+                headers={[listName]}
+                filename={fileName}
               >
                 Export CSV
               </CSVLink>
               <div
                 className="light-cyan-dropdown-panel ml-2"
                 style={{
-                  display: this.state.openPanels.loadList ? "block" : "none"
+                  display: openPanels.loadList ? "block" : "none"
                 }}
               >
-                {this.state.savedLists.map(savedList => (
+                {savedLists.map(savedList => (
                   <a
                     href="#!"
                     onClick={() => this.handleLoadList(savedList.listName)}
