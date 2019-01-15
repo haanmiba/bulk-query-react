@@ -34,6 +34,7 @@ class App extends Component {
   handleListNameChange = e => {
     let { value } = e.target;
     this.setState({ listName: value });
+
     value = value.toLowerCase();
     value = value.replace(/(^\s+|[^a-zA-Z0-9 ]+|\s+$)/g, "");
     value = value.replace(/\s+/g, "-");
