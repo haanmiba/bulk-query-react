@@ -1,5 +1,6 @@
 const initialState = {
   listName: "",
+  fileName: "",
   currentURL: {
     displayName: "Google",
     href: "https://www.google.com/search",

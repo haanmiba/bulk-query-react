@@ -3,6 +3,9 @@ import NavBar from "./components/navbar";
 import Queries from "./components/queries";
 import { Button } from "react-bootstrap";
 import initialState from "./initial-state";
+import { CSVLink } from "react-csv";
+import ReactFileReader from "react-file-reader";
+const PapaParse = require("papaparse/papaparse.min.js");
 
 class App extends Component {
   MAXIMUM_NUMBER_OF_QUERIES = 100;
@@ -29,8 +32,14 @@ class App extends Component {
   };
 
   handleListNameChange = e => {
-    const { value } = e.target;
+    let { value } = e.target;
     this.setState({ listName: value });
+    value = value.toLowerCase();
+    value = value.replace(/(^\s+|[^a-zA-Z0-9 ]+|\s+$)/g, "");
+    value = value.replace(/\s+/g, "-");
+    this.setState({
+      fileName: value.length > 0 ? `${value}.csv` : "bulk-query.csv"
+    });
   };
 
   handleChangeURL = currentURL => {
@@ -294,6 +303,44 @@ class App extends Component {
     const listName = savedList.listName;
     const queries = savedList.queries;
     this.setState({ listName, queries });
+  };
+
+  importCSVData = data => {
+    const listName = data[0][0];
+    const queries = [];
+    for (let i = 1; i < data.length; i++) {
+      queries.push({
+        id: i - 1,
+        value: data[i][0],
+        checked: data[i][0].length > 0
+      });
+    }
+    this.setState({ listName, queries });
+  };
+
+  handleImportedCSV = files => {
+    var reader = new FileReader();
+    reader.onload = e => {
+      const csvData = PapaParse.parse(reader.result);
+      if (csvData.data[0].length !== 1) {
+        alert(
+          `Invalid CSV file. CSV file can have 1 column. The CSV file provided had ${
+            csvData.data[0].length
+          }`
+        );
+        return false;
+      }
+      this.importCSVData(csvData.data);
+    };
+    reader.readAsText(files[0]);
+  };
+
+  createFilename = str => {
+    str = str.toLowerCase();
+    str = str.replace(/(^\s+|[^a-zA-Z0-9 ]+|\s+$)/g, "");
+    str = str.replace(/\s+/g, "-");
+    console.log(str);
+    return str;
   };
 
   render() {
@@ -606,12 +653,25 @@ class App extends Component {
               >
                 Load List
               </Button>
-              <Button bsStyle="info" className="m-2">
-                Import CSV
-              </Button>
-              <Button bsStyle="info" className="m-2">
+              <button className="btn btn-info m-2">
+                <ReactFileReader
+                  handleFiles={this.handleImportedCSV}
+                  fileTypes=".csv"
+                >
+                  Import CSV
+                </ReactFileReader>
+              </button>
+
+              <CSVLink
+                className="btn btn-info m-2"
+                data={this.state.queries.map(query => {
+                  return [query.value];
+                })}
+                headers={[this.state.listName]}
+                filename={this.state.fileName}
+              >
                 Export CSV
-              </Button>
+              </CSVLink>
               <div
                 className="light-cyan-dropdown-panel ml-2"
                 style={{
