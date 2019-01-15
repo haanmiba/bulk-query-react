@@ -271,9 +271,9 @@ class App extends Component {
       const csvData = PapaParse.parse(reader.result);
       if (csvData.data[0].length !== 1) {
         alert(
-          `Invalid CSV file. CSV file can have 1 column. The CSV file provided had ${
+          `Invalid CSV file. CSV file should only have 1 column. The CSV file provided had ${
             csvData.data[0].length
-          }`
+          } columns.`
         );
         return false;
       }
