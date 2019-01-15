@@ -1,16 +1,14 @@
 import React from "react";
 import Query from "./query";
 
-const Queries = props => {
-  const {
-    onCheckboxChange,
-    onTextInputChange,
-    onSearchQueryClick,
-    onClearQueryClick,
-    onDeleteQueryClick,
-    queries
-  } = props;
-
+const Queries = ({
+  onCheckboxChange,
+  onTextInputChange,
+  onSearchQueryClick,
+  onClearQueryClick,
+  onDeleteQueryClick,
+  queries
+}) => {
   return (
     <div>
       {queries.map(query => (

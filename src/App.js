@@ -103,22 +103,6 @@ class App extends Component {
     this.setState({ queries });
   };
 
-  handleSearchAll = () => {
-    const { queries } = this.state;
-    queries.forEach(query => {
-      this.handleSearchQuery(query);
-    });
-  };
-
-  handleClearAll = () => {
-    const queries = this.state.queries.map(query => {
-      query.value = "";
-      query.checked = false;
-      return query;
-    });
-    this.setState({ queries });
-  };
-
   handleDeleteAll = () => {
     const queries = [{ id: 0, value: "", checked: false }];
     this.setState({ queries });
@@ -146,19 +130,19 @@ class App extends Component {
     this.setState({ queries });
   };
 
-  handleSearchCheckedOrUnchecked = value => {
+  handleSearchMultipleQueries = (value, allQueries = false) => {
     const { queries } = this.state;
     queries.forEach(query => {
-      if (query.checked === value) {
+      if (query.checked === value || allQueries) {
         this.handleSearchQuery(query);
       }
     });
   };
 
-  handleClearCheckedOrUnchecked = value => {
+  handleClearMultipleQueries = (value, allQueries = false) => {
     const queries = [...this.state.queries];
     queries.forEach(query => {
-      if (query.checked === value) {
+      if (query.checked === value || allQueries) {
         query.value = "";
         query.checked = false;
         return query;
@@ -167,26 +151,20 @@ class App extends Component {
     this.setState({ queries });
   };
 
-  handleDeleteChecked = () => {
-    const queries = this.state.queries.filter(query => !query.checked);
-    if (queries.length === 0) {
-      this.handleDeleteAll();
-      return;
-    }
-    this.setState({ queries });
+  checkIfIsChecked = query => {
+    return query.checked;
   };
 
-  handleDeleteUnchecked = () => {
-    const queries = this.state.queries.filter(query => query.checked);
-    if (queries.length === 0) {
-      this.handleDeleteAll();
-      return;
-    }
-    this.setState({ queries });
+  checkIfIsUnchecked = query => {
+    return !query.checked;
   };
 
-  handleDeleteEmptyCells = () => {
-    const queries = this.state.queries.filter(query => query.value.length > 0);
+  checkIfIsNonEmptyString = query => {
+    return query.value.length > 0;
+  };
+
+  handleDeleteMultipleQueries = evalFunc => {
+    const queries = this.state.queries.filter(query => evalFunc(query));
     if (queries.length === 0) {
       this.handleDeleteAll();
       return;
@@ -210,13 +188,6 @@ class App extends Component {
         addUrlForm: { displayName: "", href: "", searchQueryKey: "" }
       });
     }
-  };
-
-  togglePanelOnClick = e => {
-    const { name } = e.target;
-    var { openPanels } = this.state;
-    openPanels[name] = !openPanels[name];
-    this.setState({ openPanels });
   };
 
   handleAddURLFormFieldChange = e => {
@@ -247,8 +218,19 @@ class App extends Component {
     });
   };
 
+  togglePanelOnClick = e => {
+    const { name } = e.target;
+    var { openPanels } = this.state;
+    openPanels[name] = !openPanels[name];
+    this.setState({ openPanels });
+  };
+
   handleSaveList = () => {
     const { savedLists, listName, queries } = this.state;
+    if (listName.length === 0) {
+      alert("Please enter a list name before saving the list.");
+      return;
+    }
     const index = savedLists
       .map(savedList => savedList.listName)
       .indexOf(listName);
@@ -350,7 +332,7 @@ class App extends Component {
             <Button
               bsStyle="success"
               className="m-2"
-              onClick={this.handleSearchAll}
+              onClick={() => this.handleSearchMultipleQueries({}, true)}
               disabled={
                 queries.filter(query => query.value.trim().length > 0)
                   .length === 0
@@ -361,7 +343,7 @@ class App extends Component {
             <Button
               bsStyle="warning"
               className="m-2"
-              onClick={this.handleClearAll}
+              onClick={() => this.handleClearMultipleQueries({}, true)}
             >
               Clear All
             </Button>
@@ -482,14 +464,14 @@ class App extends Component {
               <Button
                 bsStyle="success"
                 className="m-2"
-                onClick={() => this.handleSearchCheckedOrUnchecked(true)}
+                onClick={() => this.handleSearchMultipleQueries(true)}
               >
                 Search Checked
               </Button>
               <Button
                 bsStyle="success"
                 className="m-2"
-                onClick={() => this.handleSearchCheckedOrUnchecked(false)}
+                onClick={() => this.handleSearchMultipleQueries(false)}
               >
                 Search Unchecked
               </Button>
@@ -562,14 +544,14 @@ class App extends Component {
               <Button
                 bsStyle="warning"
                 className="m-2"
-                onClick={() => this.handleClearCheckedOrUnchecked(true)}
+                onClick={() => this.handleClearMultipleQueries(true)}
               >
                 Clear Checked
               </Button>
               <Button
                 bsStyle="warning"
                 className="m-2"
-                onClick={() => this.handleClearCheckedOrUnchecked(false)}
+                onClick={() => this.handleClearMultipleQueries(false)}
               >
                 Clear Unchecked
               </Button>
@@ -578,21 +560,27 @@ class App extends Component {
               <Button
                 bsStyle="danger"
                 className="m-2"
-                onClick={this.handleDeleteChecked}
+                onClick={() =>
+                  this.handleDeleteMultipleQueries(this.checkIfIsUnchecked)
+                }
               >
                 Delete Checked
               </Button>
               <Button
                 bsStyle="danger"
                 className="m-2"
-                onClick={this.handleDeleteUnchecked}
+                onClick={() =>
+                  this.handleDeleteMultipleQueries(this.checkIfIsChecked)
+                }
               >
                 Delete Unchecked
               </Button>
               <Button
                 bsStyle="danger"
                 className="m-2"
-                onClick={this.handleDeleteEmptyCells}
+                onClick={() =>
+                  this.handleDeleteMultipleQueries(this.checkIfIsNonEmptyString)
+                }
               >
                 Delete Empty Cells
               </Button>
@@ -613,14 +601,14 @@ class App extends Component {
               >
                 Load List
               </Button>
-              <button className="btn btn-info m-2">
+              <Button bsStyle="info" className="m-2">
                 <ReactFileReader
                   handleFiles={this.handleImportedCSV}
                   fileTypes=".csv"
                 >
                   Import CSV
                 </ReactFileReader>
-              </button>
+              </Button>
 
               <CSVLink
                 className="btn btn-info m-2"
