@@ -24,20 +24,18 @@ class App extends Component {
     localStorage.setItem("state", JSON.stringify(this.state));
   }
 
-  getMaxQueryId = queries => {
-    return queries.reduce(
-      (max, query) => (query.id > max ? query.id : max),
-      queries[0].id
-    );
+  createFilename = str => {
+    str = str.toLowerCase();
+    str = str.replace(/(^\s+|[^a-zA-Z0-9 ]+|\s+$)/g, "");
+    str = str.replace(/\s+/g, "-");
+    return str;
   };
 
   handleListNameChange = e => {
     let { value } = e.target;
     this.setState({ listName: value });
 
-    value = value.toLowerCase();
-    value = value.replace(/(^\s+|[^a-zA-Z0-9 ]+|\s+$)/g, "");
-    value = value.replace(/\s+/g, "-");
+    value = this.createFilename(value);
     this.setState({
       fileName: value.length > 0 ? `${value}.csv` : "bulk-query.csv"
     });
@@ -62,6 +60,13 @@ class App extends Component {
     queries[index].value = value;
     queries[index].checked = value.trim().length > 0;
     this.setState({ queries });
+  };
+
+  getMaxQueryId = queries => {
+    return queries.reduce(
+      (max, query) => (query.id > max ? query.id : max),
+      queries[0].id
+    );
   };
 
   handleAddQuery = () => {
@@ -293,14 +298,6 @@ class App extends Component {
       this.importCSVData(csvData.data);
     };
     reader.readAsText(files[0]);
-  };
-
-  createFilename = str => {
-    str = str.toLowerCase();
-    str = str.replace(/(^\s+|[^a-zA-Z0-9 ]+|\s+$)/g, "");
-    str = str.replace(/\s+/g, "-");
-    console.log(str);
-    return str;
   };
 
   render() {
