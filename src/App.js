@@ -3,6 +3,7 @@ import NavBar from "./components/navbar";
 import Queries from "./components/queries";
 import { Button } from "react-bootstrap";
 import initialState from "./initial-state";
+import AllButtonRow from "./components/all-button-row";
 import { CSVLink } from "react-csv";
 import ReactFileReader from "react-file-reader";
 const PapaParse = require("papaparse/papaparse.min.js");
@@ -293,6 +294,7 @@ class App extends Component {
       fileName,
       savedLists
     } = this.state;
+
     return (
       <React.Fragment>
         <NavBar
@@ -328,34 +330,16 @@ class App extends Component {
           >
             Add Query
           </Button>
-          <div>
-            <Button
-              bsStyle="success"
-              className="m-2"
-              onClick={() => this.handleSearchMultipleQueries({}, true)}
-              disabled={
-                queries.filter(query => query.value.trim().length > 0)
-                  .length === 0
-              }
-            >
-              Search All
-            </Button>
-            <Button
-              bsStyle="warning"
-              className="m-2"
-              onClick={() => this.handleClearMultipleQueries({}, true)}
-            >
-              Clear All
-            </Button>
-            <Button
-              bsStyle="danger"
-              className="m-2"
-              onClick={this.handleDeleteAll}
-              disabled={queries.length === 1}
-            >
-              Delete All
-            </Button>
-          </div>
+          <AllButtonRow
+            onSearchAllClick={this.handleSearchMultipleQueries}
+            onClearAllClick={this.handleClearMultipleQueries}
+            onDeleteAllClick={this.handleDeleteMultipleQueries}
+            searchAllDisabled={
+              queries.filter(query => query.value.trim().length > 0).length ===
+              0
+            }
+            deleteAllDisabled={queries.length === 1}
+          />
           <a
             name="advancedPanel"
             href="#!"
