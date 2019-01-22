@@ -4,13 +4,12 @@ import Queries from "./components/queries";
 import { Button } from "react-bootstrap";
 import initialState from "./initial-state";
 import AllButtonRow from "./components/all-button-row";
-import { CSVLink } from "react-csv";
-import ReactFileReader from "react-file-reader";
+import AdvancedPanel from "./components/advanced-panel";
 const PapaParse = require("papaparse/papaparse.min.js");
 
-class App extends Component {
-  MAXIMUM_NUMBER_OF_QUERIES = 100;
+const MAXIMUM_NUMBER_OF_QUERIES = 100;
 
+class App extends Component {
   constructor() {
     super();
     if (localStorage.getItem("state") === null) {
@@ -84,6 +83,7 @@ class App extends Component {
     if (query.value.trim().length === 0) {
       return;
     }
+    console.log(query);
     const { href, searchQueryKey } = this.state.currentURL;
     let searchURL = new URL(href);
     searchURL.searchParams.set(searchQueryKey, query.value.trim());
@@ -173,57 +173,27 @@ class App extends Component {
     this.setState({ queries });
   };
 
-  handleAddURLSubmit = e => {
+  handleAddURLSubmit = (e, formValues) => {
     e.preventDefault();
-    const { addUrlForm, urls } = this.state;
-    if (urls.map(url => url.displayName).includes(addUrlForm.displayName)) {
-      alert(`'${addUrlForm.displayName}' is already stored.`);
+    const { displayName } = formValues;
+    const { urls } = this.state;
+    if (urls.map(url => url.displayName).includes(displayName)) {
+      alert(`'${displayName}' is already stored.`);
     } else {
-      urls.push({
-        displayName: addUrlForm.displayName,
-        href: addUrlForm.href,
-        searchQueryKey: addUrlForm.searchQueryKey
-      });
+      urls.push(formValues);
       this.setState({ urls });
-      this.setState({
-        addUrlForm: { displayName: "", href: "", searchQueryKey: "" }
-      });
     }
   };
 
-  handleAddURLFormFieldChange = e => {
-    const { name, value } = e.target;
-    var { addUrlForm } = this.state;
-    addUrlForm[name] = value;
-    this.setState({ addUrlForm });
-  };
-
-  handleFormatSearchInsertText = (startPos, endPos) => {
-    const { formatSearchText } = this;
-    formatSearchText.value =
-      formatSearchText.value.substring(0, startPos) +
-      "<>" +
-      formatSearchText.value.substring(endPos, formatSearchText.value.length);
-  };
-
-  handleFormatSearch = (value, allQueries = false) => {
+  handleFormatSearch = (textAreaValue, checkValue, allQueries = false) => {
     const { queries } = this.state;
     queries.forEach(query => {
-      if (query.checked === value || allQueries) {
+      if (query.checked === checkValue || allQueries) {
         var formattedQuery = { ...query };
-        formattedQuery.value = this.formatSearchText.value
-          .split("<>")
-          .join(query.value);
+        formattedQuery.value = textAreaValue.split("<>").join(query.value);
         this.handleSearchQuery(formattedQuery);
       }
     });
-  };
-
-  togglePanelOnClick = e => {
-    const { name } = e.target;
-    var { openPanels } = this.state;
-    openPanels[name] = !openPanels[name];
-    this.setState({ openPanels });
   };
 
   handleSaveList = () => {
@@ -289,12 +259,9 @@ class App extends Component {
       currentURL,
       urls,
       listName,
-      openPanels,
-      addUrlForm,
       fileName,
       savedLists
     } = this.state;
-
     return (
       <React.Fragment>
         <NavBar
@@ -326,301 +293,40 @@ class App extends Component {
             bsStyle="primary"
             className="m-2"
             onClick={this.handleAddQuery}
-            disabled={queries === this.MAXIMUM_NUMBER_OF_QUERIES}
+            disabled={queries === MAXIMUM_NUMBER_OF_QUERIES}
           >
             Add Query
           </Button>
           <AllButtonRow
             onSearchAllClick={this.handleSearchMultipleQueries}
             onClearAllClick={this.handleClearMultipleQueries}
-            onDeleteAllClick={this.handleDeleteMultipleQueries}
+            onDeleteAllClick={this.handleDeleteAll}
             searchAllDisabled={
               queries.filter(query => query.value.trim().length > 0).length ===
               0
             }
             deleteAllDisabled={queries.length === 1}
           />
-          <a
-            name="advancedPanel"
-            href="#!"
-            onClick={this.togglePanelOnClick}
-            className="ml-2 dropdown-toggle"
-          >
-            Advanced
-          </a>
-          <div
-            id="advanced-panel"
-            style={{
-              display: openPanels.advancedPanel ? "block" : "none"
-            }}
-          >
-            <div className="light-gray-panel">
-              <Button
-                name="addUrl"
-                bsStyle="light"
-                className="m-2 dropdown-toggle"
-                onClick={this.togglePanelOnClick}
-              >
-                Add URL
-              </Button>
-              <Button
-                className="m-2"
-                bsStyle="light"
-                onClick={this.handleInvertCheckboxes}
-              >
-                Invert Checked
-              </Button>
-              <Button
-                className="m-2"
-                bsStyle="light"
-                onClick={this.handleSortQueries}
-              >
-                Sort
-              </Button>
-              <Button
-                className="m-2"
-                bsStyle="light"
-                onClick={this.handleReverseQueries}
-              >
-                Reverse
-              </Button>
-              <div
-                id="add-url-panel"
-                style={{
-                  display: openPanels.addUrl ? "block" : "none"
-                }}
-              >
-                <form onSubmit={this.handleAddURLSubmit}>
-                  <div className="ml-2">
-                    <label htmlFor="add-url-name-input">Name: </label>
-                    <input
-                      name="displayName"
-                      id="add-url-name-input"
-                      type="text"
-                      className="ml-2"
-                      value={addUrlForm.displayName}
-                      onChange={this.handleAddURLFormFieldChange}
-                    />
-                  </div>
-                  <div className="ml-2">
-                    <label htmlFor="add-url-hyperlink-input">Hyperlink: </label>
-                    <input
-                      name="href"
-                      id="add-url-hyperlink-input"
-                      type="text"
-                      className="ml-2"
-                      value={addUrlForm.href}
-                      onChange={this.handleAddURLFormFieldChange}
-                    />
-                  </div>
-                  <div className="ml-2">
-                    <label htmlFor="add-url-search-query-key-input">
-                      Search Query Key:
-                    </label>
-                    <input
-                      name="searchQueryKey"
-                      id="add-url-search-query-key-input"
-                      type="text"
-                      className="ml-2"
-                      value={addUrlForm.searchQueryKey}
-                      onChange={this.handleAddURLFormFieldChange}
-                    />
-                  </div>
-                  <div>
-                    <input
-                      type="submit"
-                      value="Submit"
-                      className="m-2 btn btn-primary"
-                    />
-                  </div>
-                </form>
-              </div>
-            </div>
-            <div className="light-green-panel">
-              <Button
-                name="formatSearch"
-                bsStyle="success"
-                className="m-2 dropdown-toggle"
-                onClick={this.togglePanelOnClick}
-              >
-                Format Search
-              </Button>
-              <Button
-                bsStyle="success"
-                className="m-2"
-                onClick={() => this.handleSearchMultipleQueries(true)}
-              >
-                Search Checked
-              </Button>
-              <Button
-                bsStyle="success"
-                className="m-2"
-                onClick={() => this.handleSearchMultipleQueries(false)}
-              >
-                Search Unchecked
-              </Button>
-              <div
-                id="format-search-panel"
-                style={{
-                  display: openPanels.formatSearch ? "block" : "none"
-                }}
-              >
-                <Button
-                  bsStyle="info"
-                  className="m-2"
-                  onClick={() =>
-                    this.handleFormatSearchInsertText(
-                      this.formatSearchText.selectionStart,
-                      this.formatSearchText.selectionEnd
-                    )
-                  }
-                >
-                  {listName}
-                </Button>
-                <div className="ml-2">
-                  <textarea
-                    ref={input => {
-                      this.formatSearchText = input;
-                    }}
-                    id="format-search-textarea"
-                  />
-                </div>
-                <Button
-                  name="formatSearchOptions"
-                  bsStyle="success"
-                  className="m-2 dropdown-toggle"
-                  onClick={this.togglePanelOnClick}
-                >
-                  Search
-                </Button>
-                <div
-                  id="format-search-dropdown-panel"
-                  className="green-dropdown-panel ml-2"
-                  style={{
-                    display: openPanels.formatSearchOptions ? "block" : "none"
-                  }}
-                >
-                  <a
-                    href="#!"
-                    id="list-format-search-checked"
-                    onClick={() => this.handleFormatSearch(true)}
-                  >
-                    Search Checked
-                  </a>
-                  <a
-                    href="#!"
-                    id="list-format-search-unchecked"
-                    onClick={() => this.handleFormatSearch(false)}
-                  >
-                    Search Unchecked
-                  </a>
-                  <a
-                    href="#!"
-                    id="list-format-search-all"
-                    onClick={() => this.handleFormatSearchAll(true, true)}
-                  >
-                    Search All
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div className="light-yellow-panel">
-              <Button
-                bsStyle="warning"
-                className="m-2"
-                onClick={() => this.handleClearMultipleQueries(true)}
-              >
-                Clear Checked
-              </Button>
-              <Button
-                bsStyle="warning"
-                className="m-2"
-                onClick={() => this.handleClearMultipleQueries(false)}
-              >
-                Clear Unchecked
-              </Button>
-            </div>
-            <div className="light-red-panel">
-              <Button
-                bsStyle="danger"
-                className="m-2"
-                onClick={() =>
-                  this.handleDeleteMultipleQueries(this.checkIfIsUnchecked)
-                }
-              >
-                Delete Checked
-              </Button>
-              <Button
-                bsStyle="danger"
-                className="m-2"
-                onClick={() =>
-                  this.handleDeleteMultipleQueries(this.checkIfIsChecked)
-                }
-              >
-                Delete Unchecked
-              </Button>
-              <Button
-                bsStyle="danger"
-                className="m-2"
-                onClick={() =>
-                  this.handleDeleteMultipleQueries(this.checkIfIsNonEmptyString)
-                }
-              >
-                Delete Empty Cells
-              </Button>
-            </div>
-            <div className="light-cyan-panel">
-              <Button
-                bsStyle="info"
-                className="m-2"
-                onClick={this.handleSaveList}
-              >
-                Save List
-              </Button>
-              <Button
-                name="loadList"
-                bsStyle="info"
-                className="m-2 dropdown-toggle"
-                onClick={this.togglePanelOnClick}
-              >
-                Load List
-              </Button>
-              <Button bsStyle="info" className="m-2">
-                <ReactFileReader
-                  handleFiles={this.handleImportedCSV}
-                  fileTypes=".csv"
-                >
-                  Import CSV
-                </ReactFileReader>
-              </Button>
-
-              <CSVLink
-                className="btn btn-info m-2"
-                data={queries.map(query => {
-                  return [query.value];
-                })}
-                headers={[listName]}
-                filename={fileName}
-              >
-                Export CSV
-              </CSVLink>
-              <div
-                className="light-cyan-dropdown-panel ml-2"
-                style={{
-                  display: openPanels.loadList ? "block" : "none"
-                }}
-              >
-                {savedLists.map(savedList => (
-                  <a
-                    href="#!"
-                    onClick={() => this.handleLoadList(savedList.listName)}
-                  >
-                    {savedList.listName}
-                  </a>
-                ))}
-              </div>
-            </div>
-          </div>
+          <AdvancedPanel
+            listName={listName}
+            handleInvertCheckboxes={this.handleInvertCheckboxes}
+            handleSortQueries={this.handleSortQueries}
+            handleReverseQueries={this.handleReverseQueries}
+            handleAddURLSubmit={this.handleAddURLSubmit}
+            handleSearchMultipleQueries={this.handleSearchMultipleQueries}
+            handleFormatSearch={this.handleFormatSearch}
+            handleClearMultipleQueries={this.handleClearMultipleQueries}
+            handleDeleteMultipleQueries={this.handleDeleteMultipleQueries}
+            checkIfIsUnchecked={this.checkIfIsUnchecked}
+            checkIfIsChecked={this.checkIfIsChecked}
+            checkIfIsNonEmptyString={this.checkIfIsNonEmptyString}
+            handleSaveList={this.handleSaveList}
+            handleImportedCSV={this.handleImportedCSV}
+            queries={queries}
+            fileName={fileName}
+            savedLists={savedLists}
+            handleLoadList={this.handleLoadList}
+          />
         </main>
       </React.Fragment>
     );

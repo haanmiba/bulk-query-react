@@ -8,11 +8,6 @@ const initialState = {
   },
   queries: [{ id: 0, value: "", checked: false }],
   savedLists: [],
-  addUrlForm: {
-    displayName: "",
-    href: "",
-    searchQueryKey: ""
-  },
   urls: [
     {
       displayName: "Google",
@@ -39,14 +34,7 @@ const initialState = {
       href: "https://www.amazon.com/s/index.php",
       searchQueryKey: "field-keywords"
     }
-  ],
-  openPanels: {
-    advancedPanel: false,
-    addUrl: false,
-    formatSearch: false,
-    formatSearchOptions: false,
-    loadList: false
-  }
+  ]
 };
 
 export default initialState;
