@@ -1,7 +1,6 @@
 import React from "react";
 
-const SavedListsDropdown = props => {
-  const { displayed, savedLists, handleLoadList } = props;
+const SavedListsDropdown = ({ displayed, savedLists, handleLoadList }) => {
   return (
     <div
       className="light-cyan-dropdown-panel ml-2"

@@ -1,13 +1,12 @@
 import React from "react";
 import { Button } from "react-bootstrap";
 
-const DeleteButtonRow = props => {
-  const {
-    handleDeleteMultipleQueries,
-    checkIfIsUnchecked,
-    checkIfIsChecked,
-    checkIfIsNonEmptyString
-  } = props;
+const DeleteButtonRow = ({
+  handleDeleteMultipleQueries,
+  checkIfIsUnchecked,
+  checkIfIsChecked,
+  checkIfIsNonEmptyString
+}) => {
   return (
     <div className="light-red-panel">
       <Button

@@ -1,7 +1,10 @@
 import React from "react";
 
-const FormatSearchOptionsDropdown = props => {
-  const { displayed, handleFormatSearch, textAreaValue } = props;
+const FormatSearchOptionsDropdown = ({
+  displayed,
+  handleFormatSearch,
+  textAreaValue
+}) => {
   return (
     <div
       id="format-search-dropdown-panel"

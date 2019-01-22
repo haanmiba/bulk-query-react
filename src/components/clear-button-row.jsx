@@ -1,8 +1,7 @@
 import React from "react";
 import { Button } from "react-bootstrap";
 
-const ClearButtonRow = props => {
-  const { handleClearMultipleQueries } = props;
+const ClearButtonRow = ({ handleClearMultipleQueries }) => {
   return (
     <div className="light-yellow-panel">
       <Button
