@@ -1,8 +1,8 @@
 import React, { Component } from "react";
-import NavBar from "./components/navbar";
-import Queries from "./components/queries";
 import { Button } from "react-bootstrap";
 import initialState from "./initial-state";
+import NavBar from "./components/navbar";
+import Queries from "./components/queries";
 import AllButtonRow from "./components/all-button-row";
 import AdvancedPanel from "./components/advanced-panel";
 const PapaParse = require("papaparse/papaparse.min.js");

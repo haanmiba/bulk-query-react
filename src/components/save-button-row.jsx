@@ -55,6 +55,7 @@ class SaveButtonRow extends Component {
           displayed={savedListsDropdownOpen}
           savedLists={savedLists}
           handleLoadList={handleLoadList}
+          handleClickList={this.toggleSavedListsDropdown}
         />
       </div>
     );
