@@ -2,8 +2,7 @@ import React from "react";
 
 const FormatSearchOptionsDropdown = ({
   displayed,
-  handleFormatSearch,
-  textAreaValue
+  handleFormatSearch
 }) => {
   return (
     <div
@@ -11,13 +10,13 @@ const FormatSearchOptionsDropdown = ({
       className="green-dropdown-panel ml-2"
       style={{ display: displayed ? "block" : "none" }}
     >
-      <a href="#!" onClick={() => handleFormatSearch(textAreaValue, true)}>
+      <a href="#!" onClick={() => handleFormatSearch(true)}>
         Search Checked
       </a>
-      <a href="#!" onClick={() => handleFormatSearch(textAreaValue, false)}>
+      <a href="#!" onClick={() => handleFormatSearch(false)}>
         Search Unchecked
       </a>
-      <a href="#!" onClick={() => handleFormatSearch(textAreaValue, {}, true)}>
+      <a href="#!" onClick={() => handleFormatSearch({}, true)}>
         Search All
       </a>
     </div>

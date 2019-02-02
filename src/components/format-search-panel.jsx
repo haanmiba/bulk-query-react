@@ -69,8 +69,7 @@ class FormatSearchPanel extends Component {
         </Button>
         <FormatSearchOptionsDropdown
           displayed={formatSearchOptionsDisplayed}
-          handleFormatSearch={handleFormatSearch}
-          textAreaValue={textAreaValue}
+          handleFormatSearch={(checkValue, allQueries = false) => handleFormatSearch(textAreaValue, checkValue, allQueries)}
         />
       </div>
     );
